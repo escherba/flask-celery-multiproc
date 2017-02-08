@@ -11,16 +11,16 @@ def index():
 @app.route("/add_numbers")
 def add_numbers():
 
-    from tasks import add
+    from tasks import do_work
 
     job = group([
-        add.s(2, 2),
-        add.s(4, 4),
-        add.s(8, 8),
-        add.s(16, 16),
-        add.s(32, 32),
-        add.s(64, 64),
-        add.s(128, 128)
+        do_work.s(2, 2),
+        do_work.s(4, 4),
+        do_work.s(8, 8),
+        do_work.s(16, 16),
+        do_work.s(32, 32),
+        do_work.s(64, 64),
+        do_work.s(128, 128)
     ])
     result = job.apply_async()
     j = result.join()

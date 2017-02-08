@@ -31,7 +31,7 @@ celery = make_celery(app)
 
 
 @celery.task(bind=True, soft_time_limit=20)
-def add(self, x, y):
+def do_work(self, x, y):
     # do something CPU-intensive
     start = time.clock()
     while True:
