@@ -1,4 +1,3 @@
-import time
 import argparse
 from flask import Flask, jsonify
 from celery import Celery, group
@@ -8,6 +7,7 @@ app = Flask(__name__)
 app.config.update(
     CELERY_BROKER_URL='amqp://guest@localhost//',
     CELERY_RESULT_BACKEND='rpc://',
+    CELERY_IMPORTS=['demo.tasks']
 )
 
 
@@ -42,20 +42,6 @@ def make_celery(app):
 celery = make_celery(app)
 
 
-@celery.task(name="tasks.do_work", bind=True, soft_time_limit=20)
-def do_work(self, x, y):
-    # do something CPU-intensive
-    start = time.clock()
-    while True:
-        c = 0
-        for i in range(1000000):
-            c += i * i
-        cur = time.clock()
-        if cur - start >= 5.0:
-            break
-    return x + y
-
-
 @app.route("/")
 def index():
     return 'simple celery+flask example'
@@ -63,6 +49,8 @@ def index():
 
 @app.route("/add_numbers")
 def add_numbers():
+
+    from demo.tasks import do_work
 
     job = group([
         do_work.s(2, 2),
