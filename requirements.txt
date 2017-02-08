@@ -2,4 +2,4 @@ amqp==2.1.4
 amqplib==1.0.2
 celery==4.0.2
 Flask==0.12
-[01;31m[Kgevent[m[K==1.2.1
+gevent==1.2.1
