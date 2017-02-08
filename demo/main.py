@@ -1,4 +1,5 @@
 import time
+import argparse
 from flask import Flask, jsonify
 from celery import Celery, group
 
@@ -8,6 +9,16 @@ app.config.update(
     CELERY_BROKER_URL='amqp://guest@localhost//',
     CELERY_RESULT_BACKEND='rpc://',
 )
+
+
+def parse_args(args=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--debug', action='store_true',
+                    help='run app in debug mode (allows breakpoints)')
+    ap.add_argument('--host', type=str, default='localhost')
+    ap.add_argument('--port', type=int, default=5000)
+    namespace = ap.parse_args(args)
+    return namespace
 
 
 def make_celery(app):
@@ -68,5 +79,10 @@ def add_numbers():
     return jsonify(j)
 
 
+def serve(args):
+    app.run(host=args.host, port=args.port, debug=args.debug)
+
+
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000, debug=True)
+    args = parse_args()
+    serve(args)
