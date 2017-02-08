@@ -16,11 +16,11 @@ Make sure you have RabbitMQ running (on Mac it's `brew services start rabbitmq`)
 
     $ celery -A tasks.celery worker -l info
 
-Start Flask app:
+In a separate terminal, start Flask app:
 
     $ python app.py
 
-Make some requests:
+Finally, make some requests:
 
     $ time curl http://localhost:5000/add_numbers
     [ 4, 8, 16, 32, 64 ]
