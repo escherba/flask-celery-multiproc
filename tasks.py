@@ -5,7 +5,7 @@ from app import app
 
 app.config.update(
     CELERY_BROKER_URL='amqp://guest@localhost//',
-    CELERY_RESULT_BACKEND='rpc://'
+    CELERY_RESULT_BACKEND='rpc://',
 )
 
 
@@ -30,8 +30,15 @@ def make_celery(app):
 celery = make_celery(app)
 
 
-@celery.task(bind=True)
+@celery.task(bind=True, soft_time_limit=20)
 def add(self, x, y):
     # do something CPU-intensive
-    time.sleep(5)
+    start = time.clock()
+    while True:
+        c = 0
+        for i in range(1000000):
+            c += i * i
+        cur = time.clock()
+        if cur - start >= 5.0:
+            break
     return x + y

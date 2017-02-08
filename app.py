@@ -9,7 +9,7 @@ def index():
 
 
 @app.route("/add_numbers")
-def print_numbers_action():
+def add_numbers():
 
     from tasks import add
 
@@ -19,6 +19,8 @@ def print_numbers_action():
         add.s(8, 8),
         add.s(16, 16),
         add.s(32, 32),
+        add.s(64, 64),
+        add.s(128, 128)
     ])
     result = job.apply_async()
     j = result.join()
