@@ -1,7 +1,8 @@
 import time
-from celery import Celery
-from app import app
+from flask import Flask, jsonify
+from celery import Celery, group
 
+app = Flask(__name__)
 
 app.config.update(
     CELERY_BROKER_URL='amqp://guest@localhost//',
@@ -30,7 +31,7 @@ def make_celery(app):
 celery = make_celery(app)
 
 
-@celery.task(bind=True, soft_time_limit=20)
+@celery.task(name="tasks.do_work", bind=True, soft_time_limit=20)
 def do_work(self, x, y):
     # do something CPU-intensive
     start = time.clock()
@@ -42,3 +43,30 @@ def do_work(self, x, y):
         if cur - start >= 5.0:
             break
     return x + y
+
+
+@app.route("/")
+def index():
+    return 'simple celery+flask example'
+
+
+@app.route("/add_numbers")
+def add_numbers():
+
+    job = group([
+        do_work.s(2, 2),
+        do_work.s(4, 4),
+        do_work.s(8, 8),
+        do_work.s(16, 16),
+        do_work.s(32, 32),
+        do_work.s(64, 64),
+        do_work.s(128, 128),
+        do_work.s(256, 256)
+    ])
+    result = job.apply_async()
+    j = result.join()
+    return jsonify(j)
+
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=5000, debug=True)

@@ -61,11 +61,11 @@ Create virtualenv
 
 Make sure you have RabbitMQ running (on Mac you may have to first run `brew install rabbitmq` and `brew services start rabbitmq`) and start Celery:
 
-    $ celery -A tasks.celery worker -l info
+    $ celery -A demo.tasks.celery worker -l info
 
 In a separate terminal, start Flask app:
 
-    $ python app.py
+    $ python -m demo.app
 
 Finally, make some requests:
 
