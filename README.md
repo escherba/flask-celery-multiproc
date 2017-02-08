@@ -59,7 +59,7 @@ Create virtualenv
     $ . env/bin/activate
     $ pip install -r requirements.txt
 
-Make sure you have RabbitMQ running (on Mac it's `brew services start rabbitmq`) and start Celery:
+Make sure you have RabbitMQ running (on Mac you may have to first run `brew install rabbitmq` and `brew services start rabbitmq`) and start Celery:
 
     $ celery -A tasks.celery worker -l info
 
