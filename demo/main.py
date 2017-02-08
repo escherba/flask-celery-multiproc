@@ -4,19 +4,12 @@ from celery import Celery, group
 
 from multiprocessing import Pool
 
-import time
-
 
 def f(x):
     # do something CPU-intensive
-    start = time.clock()
-    while True:
-        c = 0
-        for i in range(1000000):
-            c += i * i
-        cur = time.clock()
-        if cur - start >= 5.0:
-            break
+    c = 0
+    for i in range(10000000):
+        c += i * i
     return sum(x)
 
 
@@ -25,6 +18,7 @@ pool = Pool(8)
 
 app = Flask(__name__)
 
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 app.config.update(
     CELERY_BROKER_URL='amqp://guest@localhost//',
     CELERY_RESULT_BACKEND='rpc://',
@@ -68,8 +62,8 @@ def index():
     return 'simple celery+flask example'
 
 
-@app.route("/add_numbers")
-def add_numbers():
+@app.route("/add_numbers_celery")
+def add_numbers_celery():
 
     from demo.tasks import do_work
 
