@@ -3,6 +3,49 @@ Celery+Flask multiprocessing demo
 
 Demonstrates use of Celery workers to speed up long-running web requests
 
+Setup
+-----
+
+Let's say a web request needs to run a long-running task on some data but the task
+is easily parallelizable on the data. We define the task in a module away from the main app
+(let's call it `tasks.py`):
+
+```python
+@celery.task(bind=True, soft_time_limit=20)
+def do_work(self, x, y):
+    # do something CPU-intensive
+    start = time.clock()
+    while True:
+        c = 0
+        for i in range(1000000):
+            c += i * i
+        cur = time.clock()
+        if cur - start >= 5.0:
+            break
+    return x + y
+```
+
+In the app module we then spawn the needed number of requests (this should typically be no larger than 
+the number of CPU cores):
+
+```python
+@app.route("/add_numbers")
+def add_numbers():
+    from tasks import do_work
+    job = group([
+        do_work.s(2, 2),
+        do_work.s(4, 4),
+        do_work.s(8, 8),
+        do_work.s(16, 16),
+        do_work.s(32, 32),
+        do_work.s(64, 64),
+        do_work.s(128, 128)
+    ])
+    result = job.apply_async()
+    j = result.join()
+    return jsonify(j)
+```
+
 Usage
 -----
 
