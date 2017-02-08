@@ -2,8 +2,23 @@ import argparse
 from flask import Flask, jsonify
 from celery import Celery, group
 
+from multiprocessing import Pool
+
+
+def f(x):
+    # do something CPU-intensive
+    c = 0
+    for i in range(10000000):
+        c += i * i
+    return sum(x)
+
+
+pool = Pool(8)
+
+
 app = Flask(__name__)
 
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 app.config.update(
     CELERY_BROKER_URL='amqp://guest@localhost//',
     CELERY_RESULT_BACKEND='rpc://',
@@ -47,8 +62,8 @@ def index():
     return 'simple celery+flask example'
 
 
-@app.route("/add_numbers")
-def add_numbers():
+@app.route("/add_numbers_celery")
+def add_numbers_celery():
 
     from demo.tasks import do_work
 
@@ -64,6 +79,20 @@ def add_numbers():
     ])
     result = job.apply_async()
     j = result.join()
+    return jsonify(j)
+
+
+@app.route("/add_numbers_mp")
+def add_numbers_mp():
+
+    j = pool.map(f, [(2, 2), (4, 4), (8, 8), (16, 16), (32, 32), (64, 64), (128, 128), (256, 256)])
+    return jsonify(j)
+
+
+@app.route("/add_numbers_serial")
+def add_numbers_serial():
+
+    j = map(f, [(2, 2), (4, 4), (8, 8), (16, 16), (32, 32), (64, 64), (128, 128), (256, 256)])
     return jsonify(j)
 
 
