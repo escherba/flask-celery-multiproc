@@ -2,6 +2,27 @@ import argparse
 from flask import Flask, jsonify
 from celery import Celery, group
 
+from multiprocessing import Pool
+
+import time
+
+
+def f(x):
+    # do something CPU-intensive
+    start = time.clock()
+    while True:
+        c = 0
+        for i in range(1000000):
+            c += i * i
+        cur = time.clock()
+        if cur - start >= 5.0:
+            break
+    return sum(x)
+
+
+pool = Pool(8)
+
+
 app = Flask(__name__)
 
 app.config.update(
@@ -64,6 +85,20 @@ def add_numbers():
     ])
     result = job.apply_async()
     j = result.join()
+    return jsonify(j)
+
+
+@app.route("/add_numbers_mp")
+def add_numbers_mp():
+
+    j = pool.map(f, [(2, 2), (4, 4), (8, 8), (16, 16), (32, 32), (64, 64), (128, 128), (256, 256)])
+    return jsonify(j)
+
+
+@app.route("/add_numbers_serial")
+def add_numbers_serial():
+
+    j = map(f, [(2, 2), (4, 4), (8, 8), (16, 16), (32, 32), (64, 64), (128, 128), (256, 256)])
     return jsonify(j)
 
 
