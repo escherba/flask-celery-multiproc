@@ -28,7 +28,7 @@ def do_work(self, x, y):
     return x + y
 ```
 
-In the app module we then spawn the needed number of requests (this should typically be no larger than 
+In the app module we then split the data and spawn the needed number of tasks (this should typically be no larger than 
 the number of CPU cores):
 
 ```python
