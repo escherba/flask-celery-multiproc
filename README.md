@@ -42,7 +42,8 @@ def add_numbers():
         do_work.s(16, 16),
         do_work.s(32, 32),
         do_work.s(64, 64),
-        do_work.s(128, 128)
+        do_work.s(128, 128),
+        do_work.s(256, 256)
     ])
     result = job.apply_async()
     j = result.join()
@@ -69,8 +70,10 @@ In a separate terminal, start Flask app:
 Finally, make some requests:
 
     $ time curl http://localhost:5000/add_numbers
-    [ 4, 8, 16, 32, 64, 128, 256 ]
+    [ 4, 8, 16, 32, 64, 128, 256, 512 ]
 
-    real	0m5.054s
-    user	0m0.006s
-    sys	0m0.010s
+    real	0m5.573s
+    user	0m0.007s
+    sys	0m0.009s
+    
+As you can see from these numbers (on a i7 4-core laptop), the parallelism overhead here is quite low.
