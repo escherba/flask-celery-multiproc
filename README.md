@@ -13,7 +13,10 @@ is easily parallelizable on the data. We define the task in a module away from t
 ```python
 @celery.task(bind=True, soft_time_limit=20)
 def do_work(self, x, y):
-    # do something CPU-intensive
+    """
+    Performs a CPU-intensive task for exactly 5 seconds,
+    with 20-second timeout
+    """
     start = time.clock()
     while True:
         c = 0
@@ -66,7 +69,7 @@ In a separate terminal, start Flask app:
 Finally, make some requests:
 
     $ time curl http://localhost:5000/add_numbers
-    [ 4, 8, 16, 32, 64 ]
+    [ 4, 8, 16, 32, 64, 128, 256 ]
 
     real	0m5.054s
     user	0m0.006s
